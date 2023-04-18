@@ -4,29 +4,42 @@ using System.Net.Http;
 using System.Web.Http;
 using test_123451;
 
-public class GithubController : ApiController 
+namespace test_123451
 {
-    [HttpGet]
-    public HttpResponseMessage GetGithub()
+    public class GitHubController : ApiController
     {
-        try
+        public HttpResponseMessage GetGitHubConfiguration()
         {
-            var gitHubClient = new GitHubClient();
-            gitHubClient.BaseAddress = new Uri("https://github.com/");
-            gitHubClient.Credentials = new NetworkCredential("username", "password");
-            var response = gitHubClient.GetAsync("/user/repos").Result;
-            if (response.IsSuccessStatusCode)
+            try
             {
-                return Request.CreateResponse(HttpStatusCode.OK, response.Content.ReadAsStringAsync().Result);
+                //Get GitHub Configuration from the database
+                var gitHubConfiguration = GetGitHubConfigurationFromDataBase();
+
+                //Create response and return
+                return Request.CreateResponse(HttpStatusCode.OK, gitHubConfiguration);
             }
-            else
+            catch (Exception ex)
             {
-                return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Something went wrong");
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
-        catch (Exception ex)
+
+        private GitHubConfiguration GetGitHubConfigurationFromDataBase()
         {
-            return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+            //TODO: Implement Database Logic to get GitHub Configuration
+            return new GitHubConfiguration
+            {
+                UserName = "test_123451",
+                Token = "asdgjadsfhgfdgdjhagjds",
+                URL = "https://github.com/test_123451"
+            };
         }
     }
+}
+
+public class GitHubConfiguration
+{
+    public string UserName { get; set; }
+    public string Token { get; set; }
+    public string URL { get; set; }
 }
